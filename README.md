@@ -8,3 +8,5 @@ Sen: Calculate the trend of kNDVI using Theil-Sen trend analysis;
 MK: Calculate the significance of kNDVI trend using Mann-Kendall test;
 LagAcc and LagAcc_Period: Calculate the lag and accumulation period of kndvi to each climate factor.
 residual1-3: Calculate the contribution rate of each scenario.
+
+It should be noted that except for “kNDVI”, which is JavaScript code applicable to GEE, the rest of the code is based on the matlab environment.
