@@ -1,0 +1,62 @@
+var ROI = table.geometry();
+
+Map.addLayer(ROI,{},'ROI');
+
+Map.centerObject(ROI, 5);
+
+for(var i = 2008;i<=2010;i++){
+// 月份，共计12个月
+for(var j = 1;j<=12;j++){
+
+var CHIRPS_Daily = ee.ImageCollection("MODIS/061/MOD13Q1")
+
+.filter(ee.Filter.calendarRange(j,  j,'month'))
+  .filter(ee.Filter.calendarRange(i, i, 'year'))
+  .map(function(img) {
+    return img.set('year', img.date().get('year'));
+  }).filterBounds(ROI)
+ .select('NDVI')
+
+var CHIRPS_Year_mean = CHIRPS_Daily.mean().clip(ROI).multiply(0.0001).pow(2).tanh();
+
+// var batch = require('users/fitoprincipe/geetools:batch')
+
+var precipitationVis = {
+  min: -0.2,
+  max: 1.0,
+  palette: [
+    'FFFFFF', 'CE7E45', 'DF923D', 'F1B555', 'FCD163', '99B718', '74A901',
+    '66A000', '529400', '3E8601', '207401', '056201', '004C00', '023B01',
+    '012E01', '011D01', '011301'
+  ],
+};
+
+print(CHIRPS_Year_mean,i+'_year_'+j+'_CHIRPS_Year_mean')
+
+Map.addLayer(CHIRPS_Year_mean, precipitationVis, i+'_year_'+j+'_CHIRPS_Year_mean');
+
+// Map.addLayer(CHIRPS_Daily.first().clip(ROI), precipitationVis, 'CHIRPS_Year_mean_first');
+
+Export.image.toDrive({
+      image: CHIRPS_Year_mean,
+      description: 'everymonth_kndvi_mean_'+i+'_'+j+'_1',
+      // description: 'everyMonthKNDVI',
+      crs: "EPSG:4326", // use webside:epsg.io to choose the right crs
+      scale: 250,
+      region: ROI,
+      maxPixels: 1e13,
+      folder: '2000-2020_EveryMonth_KNDVI'
+    })
+    
+// batch.Download.ImageCollection.toDrive(CHIRPS_Year_mean, "2000-2020_EveryMonth_KNDVI", {
+// image: CHIRPS_Year_mean,
+// description: i+'_year_'+j+'_month_mean',
+// region: ROI,
+// scale: 1000,
+// type:"int16" 
+// }
+// )
+    
+}
+
+}
